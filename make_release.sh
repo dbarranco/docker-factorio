@@ -22,14 +22,14 @@ then
 fi
 
 docker build --build-arg factorio_version=${VERSION} \
-    -t quay.io/games_on_k8s/factorio:${VERSION} .
-docker run --rm -it quay.io/games_on_k8s/factorio:${VERSION}
+    -t dbarranco/factorio:${VERSION} .
+docker run --rm -it dbarranco/factorio:${VERSION}
 
 while true; do
     read -p "Publish the built image? (y/n) " yn
     case $yn in
         [Yy]* )
-            docker push quay.io/games_on_k8s/factorio:${VERSION}
+            docker push dbarranco/factorio:${VERSION}
             break;;
         [Nn]* )
             exit;;

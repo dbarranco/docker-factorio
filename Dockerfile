@@ -1,23 +1,21 @@
 FROM ubuntu:16.04
-MAINTAINER David Barranco <arp4@protonmail.com>
-
-RUN apt-get update && apt-get dist-upgrade -y && \
-    apt install -y python3 xz-utils && apt-get clean
-
-WORKDIR /opt
+LABEL maintainer "David Barranco <arp4@protonmail.com>"
 
 ARG factorio_version
 ENV VERSION $factorio_version
 
-COPY entrypoint.sh gen_config.py factorio.crt /opt/
-COPY factorio_headless_x64_$VERSION.tar.xz /tmp/factorio_headless.tar.xz
+COPY rootfs /opt/factorio
+COPY factorio_headless_x64_$VERSION.tar.xz /tmp/factorio_headless.tar.xz 
 
-VOLUME /opt/factorio/saves /opt/factorio/mods
+RUN apt-get update && \
+    apt-get dist-upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    xz-utils jq &&\
+    tar -xJf /tmp/factorio_headless.tar.xz -C /opt && \ 
+    rm /tmp/factorio_headless.tar.xz 
 
-RUN tar -xJf /tmp/factorio_headless.tar.xz && \
-    rm /tmp/factorio_headless.tar.xz
+WORKDIR /opt/factorio
 
-EXPOSE 34197/udp
-EXPOSE 27015/tcp
+EXPOSE 34198/udp 27014/tcp
 
-CMD ["./entrypoint.sh"]
+CMD ["./app_entrypoint.sh"]

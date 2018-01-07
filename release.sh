@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 VERSION=$1
 
@@ -6,7 +6,7 @@ if [ -z ${VERSION} ]
 then
     echo "Packages an arbitrary Factorio release."
     echo
-    echo "Usage: ./download_release.sh 0.14.15"
+    echo "Usage: ./release.sh 0.14.15"
     exit 1
 fi
 
@@ -14,15 +14,21 @@ LOCAL_FILENAME=factorio_headless_x64_${VERSION}.tar.xz
 DOWNLOAD_URL=https://www.factorio.com/get-download/${VERSION}/headless/linux64
 
 # Attempt to grab the requested release.
-wget  ${DOWNLOAD_URL} -O ${LOCAL_FILENAME} || rm -f ${LOCAL_FILENAME}
 
-if [ $? -ne 0 ]
+if [ ! -f $LOCAL_FILENAME ] 
 then
-    exit 1
+    wget  ${DOWNLOAD_URL} -O ${LOCAL_FILENAME} || rm -f ${LOCAL_FILENAME}
+    if [ $? -ne 0 ]
+    then
+        echo "Found errors while downloading the asset."
+        exit 1
+    fi
 fi
+
 
 docker build --build-arg factorio_version=${VERSION} \
     -t dbarranco/factorio:${VERSION} .
+# Run/Test the container
 docker run --rm -it dbarranco/factorio:${VERSION}
 
 while true; do
